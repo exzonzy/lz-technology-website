@@ -214,7 +214,7 @@ function App() {
               {/* Contact Form */}
               <div className="px-4">
                 <h3 className="text-xl md:text-2xl font-bold mb-6">Send us a Message</h3>
-                <form action="mailto:yourdanovkristian@gmail.com" method="post" encType="text/plain" className="space-y-4 md:space-y-6">
+                <form action="https://formspree.io/f/xpwzgkqr" method="POST" className="space-y-4 md:space-y-6">
                   <div>
                     <input
                       type="text"
@@ -251,6 +251,9 @@ function App() {
                       className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
                     ></textarea>
                   </div>
+                  <input type="hidden" name="_subject" value="New Contact Form Submission from LZ-Tech Website" />
+                  <input type="hidden" name="_next" value="https://lz-technology.vercel.app" />
+                  <input type="hidden" name="_captcha" value="false" />
                   <button
                     type="submit"
                     className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base"
