@@ -18,11 +18,11 @@
     "allowSyntheticDefaultImports": true,
 
     /* Path mapping */
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
+    "ignoreDeprecations": "5.0",
 
     /* Linting */
     "strict": true,
