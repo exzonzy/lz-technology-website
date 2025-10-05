@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check URL params and path for success state
   useEffect(() => {
@@ -29,6 +30,35 @@ function App() {
       setCountdown(5); // Reset for next time
     }
   }, [showSuccess, countdown]);
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString()
+      });
+      
+      if (response.ok) {
+        setShowSuccess(true);
+        setCountdown(5);
+        form.reset();
+      } else {
+        alert('There was an error sending your message. Please try again.');
+      }
+    } catch (error) {
+      alert('There was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Success page component
   if (showSuccess) {
@@ -271,7 +301,7 @@ function App() {
                   method="POST" 
                   data-netlify="true" 
                   data-netlify-honeypot="bot-field"
-                  action="/success"
+                  onSubmit={handleSubmit}
                   className="space-y-4 md:space-y-6"
                 >
                   {/* Hidden field for Netlify */}
@@ -318,9 +348,10 @@ function App() {
                   
                   <button
                     type="submit"
-                    className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base"
+                    disabled={isSubmitting}
+                    className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               </div>
