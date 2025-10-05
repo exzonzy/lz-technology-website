@@ -6,18 +6,6 @@ function App() {
   const [countdown, setCountdown] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check URL params and path for success state
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentPath = window.location.pathname;
-    
-    if (urlParams.get('success') === 'true' || currentPath === '/success') {
-      setShowSuccess(true);
-      // Clean up URL - redirect to home but keep success state
-      window.history.replaceState({}, document.title, '/');
-    }
-  }, []);
-
   // Handle countdown for success page
   useEffect(() => {
     if (showSuccess && countdown > 0) {
@@ -32,11 +20,32 @@ function App() {
   }, [showSuccess, countdown]);
 
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsSubmitting(true);
-    // Let the form submit naturally to Netlify
-    // The action="/?success=true" will handle the redirect
-    // and our useEffect will catch the success parameter
+    
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString()
+      });
+      
+      if (response.ok) {
+        setShowSuccess(true);
+        setCountdown(5);
+        form.reset();
+      } else {
+        alert('There was an error sending your message. Please try again.');
+      }
+    } catch (error) {
+      alert('There was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Success page component
@@ -280,7 +289,6 @@ function App() {
                   method="POST" 
                   data-netlify="true" 
                   data-netlify-honeypot="bot-field"
-                  action="/?success=true"
                   onSubmit={handleSubmit}
                   className="space-y-4 md:space-y-6"
                 >
