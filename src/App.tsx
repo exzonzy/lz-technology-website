@@ -32,32 +32,11 @@ function App() {
   }, [showSuccess, countdown]);
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setIsSubmitting(true);
-    
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    
-    try {
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData as any).toString()
-      });
-      
-      if (response.ok) {
-        setShowSuccess(true);
-        setCountdown(5);
-        form.reset();
-      } else {
-        alert('There was an error sending your message. Please try again.');
-      }
-    } catch (error) {
-      alert('There was an error sending your message. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Let the form submit naturally to Netlify
+    // The action="/?success=true" will handle the redirect
+    // and our useEffect will catch the success parameter
   };
 
   // Success page component
@@ -301,6 +280,7 @@ function App() {
                   method="POST" 
                   data-netlify="true" 
                   data-netlify-honeypot="bot-field"
+                  action="/?success=true"
                   onSubmit={handleSubmit}
                   className="space-y-4 md:space-y-6"
                 >
