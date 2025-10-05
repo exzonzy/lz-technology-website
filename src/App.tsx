@@ -39,9 +39,11 @@ function App() {
         setCountdown(5);
         form.reset();
       } else {
+        console.error('Form submission failed:', response.status, response.statusText);
         alert('There was an error sending your message. Please try again.');
       }
     } catch (error) {
+      console.error('Form submission error:', error);
       alert('There was an error sending your message. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -73,14 +75,6 @@ function App() {
   }
   return (
     <div className="min-h-screen w-screen bg-white text-black overflow-x-hidden m-0 p-0">
-      {/* Hidden form for Netlify to detect during build */}
-      <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <input type="text" name="subject" />
-        <textarea name="message"></textarea>
-      </form>
-
       {/* Simple Header */}
       <header className="bg-gray-900 text-white w-screen">
         <div className="w-screen px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -300,7 +294,7 @@ function App() {
                   onSubmit={handleSubmit}
                   className="space-y-4 md:space-y-6"
                 >
-                  {/* Hidden field for Netlify */}
+                  {/* Hidden field for Netlify - REQUIRED for JavaScript submissions */}
                   <input type="hidden" name="form-name" value="contact" />
                   {/* Honeypot field for spam protection */}
                   <input type="hidden" name="bot-field" />
