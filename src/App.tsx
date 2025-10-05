@@ -1,6 +1,71 @@
 import './App.css';
+import emailjs from '@emailjs/browser';
+import { useState } from 'react';
 
 function App() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // EmailJS configuration - replace with your actual values when ready
+    const serviceId = 'YOUR_SERVICE_ID';
+    const templateId = 'YOUR_TEMPLATE_ID';
+    const publicKey = 'YOUR_PUBLIC_KEY';
+
+    const templateParams = {
+      from_name: formData.get('name'),
+      from_email: formData.get('email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+      to_email: 'yourdanovkristian@gmail.com'
+    };
+
+    try {
+      // Check if EmailJS is configured
+      if (serviceId === 'YOUR_SERVICE_ID' || templateId === 'YOUR_TEMPLATE_ID' || publicKey === 'YOUR_PUBLIC_KEY') {
+        // Fallback: Create a well-formatted mailto link
+        const emailSubject = `New Contact from LZ-Tech Website - ${formData.get('subject')}`;
+        const emailBody = `Hello Kristian,
+
+You have received a new message from your LZ-Tech website:
+
+Name: ${formData.get('name')}
+Email: ${formData.get('email')}
+Subject: ${formData.get('subject')}
+
+Message:
+${formData.get('message')}
+
+---
+This message was sent from your LZ-Tech website contact form.
+Reply directly to: ${formData.get('email')}`;
+
+        const mailtoUrl = `mailto:yourdanovkristian@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoUrl, '_blank');
+        
+        setSubmitStatus('success');
+        form.reset();
+      } else {
+        // Use EmailJS when properly configured
+        await emailjs.send(serviceId, templateId, templateParams, publicKey);
+        setSubmitStatus('success');
+        form.reset();
+      }
+    } catch (error) {
+      console.error('Email send failed:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-screen bg-white text-black overflow-x-hidden m-0 p-0">
       {/* Simple Header */}
@@ -214,7 +279,7 @@ function App() {
               {/* Contact Form */}
               <div className="px-4">
                 <h3 className="text-xl md:text-2xl font-bold mb-6">Send us a Message</h3>
-                <form action="https://formspree.io/f/xpwzgkqr" method="POST" className="space-y-4 md:space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                   <div>
                     <input
                       type="text"
@@ -251,14 +316,25 @@ function App() {
                       className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
                     ></textarea>
                   </div>
-                  <input type="hidden" name="_subject" value="New Contact Form Submission from LZ-Tech Website" />
-                  <input type="hidden" name="_next" value="https://lz-technology.vercel.app" />
-                  <input type="hidden" name="_captcha" value="false" />
+                  
+                  {/* Status Messages */}
+                  {submitStatus === 'success' && (
+                    <div className="p-4 bg-green-800 border border-green-600 rounded-lg text-green-200">
+                      ✅ Email client opened with your message! Please send the email to complete your inquiry.
+                    </div>
+                  )}
+                  {submitStatus === 'error' && (
+                    <div className="p-4 bg-red-800 border border-red-600 rounded-lg text-red-200">
+                      ❌ Failed to send message. Please try again or contact us directly.
+                    </div>
+                  )}
+                  
                   <button
                     type="submit"
-                    className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base"
+                    disabled={isSubmitting}
+                    className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors font-semibold text-sm md:text-base"
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               </div>
