@@ -5,13 +5,15 @@ function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
-  // Check URL params for success state
+  // Check URL params and path for success state
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
+    const currentPath = window.location.pathname;
+    
+    if (urlParams.get('success') === 'true' || currentPath === '/success') {
       setShowSuccess(true);
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // Clean up URL - redirect to home but keep success state
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 
@@ -269,7 +271,7 @@ function App() {
                   method="POST" 
                   data-netlify="true" 
                   data-netlify-honeypot="bot-field"
-                  action="/?success=true"
+                  action="/success"
                   className="space-y-4 md:space-y-6"
                 >
                   {/* Hidden field for Netlify */}
