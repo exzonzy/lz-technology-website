@@ -1,15 +1,56 @@
-import React, { useState } from 'react';
 import './App.css';
+import { useState, useEffect } from 'react';
 
 function App() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // Let Netlify handle the form submission
-    setTimeout(() => {
-      setIsSubmitted(true);
-    }, 1000);
-  };
+  // Check URL params for success state
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setShowSuccess(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  // Handle countdown for success page
+  useEffect(() => {
+    if (showSuccess && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (showSuccess && countdown === 0) {
+      setShowSuccess(false);
+      setCountdown(5); // Reset for next time
+    }
+  }, [showSuccess, countdown]);
+
+  // Success page component
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex items-center justify-center">
+        <div className="text-center p-8 max-w-2xl mx-4">
+          <div className="text-6xl md:text-8xl text-green-500 mb-6">✓</div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-cyan-400">Message Sent Successfully!</h1>
+          <p className="text-lg md:text-xl text-gray-300 mb-6 leading-relaxed">
+            Thank you for contacting LZ Technology Solutions. We have received your message and will get back to you as soon as possible.
+          </p>
+          <div className="text-gray-400 mb-6">
+            Redirecting to homepage in {countdown} seconds...
+          </div>
+          <button
+            onClick={() => setShowSuccess(false)}
+            className="bg-cyan-500 text-white px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
+          >
+            Back to Homepage
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-screen bg-white text-black overflow-x-hidden m-0 p-0">
       {/* Simple Header */}
@@ -223,78 +264,63 @@ function App() {
               {/* Contact Form */}
               <div className="px-4">
                 <h3 className="text-xl md:text-2xl font-bold mb-6">Send us a Message</h3>
-                
-                {isSubmitted ? (
-                  <div className="text-center py-8">
-                    <div className="text-4xl text-green-500 mb-4">✓</div>
-                    <h4 className="text-xl font-bold text-green-500 mb-2">Message Sent Successfully!</h4>
-                    <p className="text-gray-300 mb-4">Thank you for contacting LZ Technology Solutions. We have received your message and will get back to you as soon as possible.</p>
-                    <button 
-                      onClick={() => setIsSubmitted(false)}
-                      className="bg-cyan-500 text-white px-6 py-2 rounded-lg hover:bg-cyan-600 transition-colors"
-                    >
-                      Send Another Message
-                    </button>
+                <form 
+                  name="contact" 
+                  method="POST" 
+                  data-netlify="true" 
+                  data-netlify-honeypot="bot-field"
+                  action="/?success=true"
+                  className="space-y-4 md:space-y-6"
+                >
+                  {/* Hidden field for Netlify */}
+                  <input type="hidden" name="form-name" value="contact" />
+                  {/* Honeypot field for spam protection */}
+                  <input type="hidden" name="bot-field" />
+                  
+                  <div>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your Name"
+                      required
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
+                    />
                   </div>
-                ) : (
-                  <form 
-                    name="contact" 
-                    method="POST" 
-                    data-netlify="true" 
-                    data-netlify-honeypot="bot-field"
-                    onSubmit={handleSubmit}
-                    className="space-y-4 md:space-y-6"
+                  <div>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Your Email"
+                      required
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="subject"
+                      placeholder="Subject"
+                      required
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
+                    />
+                  </div>
+                  <div>
+                    <textarea
+                      rows={4}
+                      name="message"
+                      placeholder="Your Message"
+                      required
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
+                    ></textarea>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base"
                   >
-                    {/* Hidden field for Netlify */}
-                    <input type="hidden" name="form-name" value="contact" />
-                    {/* Honeypot field for spam protection */}
-                    <input type="hidden" name="bot-field" />
-                    
-                    <div>
-                      <input
-                        type="text"
-                        name="name"
-                        placeholder="Your Name"
-                        required
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Your Email"
-                        required
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        name="subject"
-                        placeholder="Subject"
-                        required
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
-                      />
-                    </div>
-                    <div>
-                      <textarea
-                        rows={4}
-                        name="message"
-                        placeholder="Your Message"
-                        required
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm md:text-base"
-                      ></textarea>
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      className="w-full bg-cyan-500 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-cyan-600 transition-colors font-semibold text-sm md:text-base"
-                    >
-                      Send Message
-                    </button>
-                  </form>
-                )}
+                    Send Message
+                  </button>
+                </form>
               </div>
             </div>
           </div>
